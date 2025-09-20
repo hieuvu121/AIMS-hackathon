@@ -5,6 +5,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import io
+import tempfile
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
+from reportlab.lib.units import inch, cm
+from reportlab.lib.colors import HexColor, black, white
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 import PyPDF2
 from datetime import datetime, timedelta
 import base64
@@ -15,6 +23,7 @@ import json
 import time
 from textblob import TextBlob
 import networkx as nx
+import os
 
 # Configure page with enhanced settings
 st.set_page_config(
@@ -41,7 +50,7 @@ if 'alerts' not in st.session_state:
 
 # Enhanced Company Database with more data points
 COMPANY_DATABASE = {
-    "Westpac Banking Corporation": {
+    "ABCDXYZ CORP": {
         "industry": "Financial Services",
         "revenue_aud": "$21.2B",
         "employees": "40,000+",
@@ -53,125 +62,9 @@ COMPANY_DATABASE = {
         "esg_score": 76,
         "last_audit": "2024-03-15",
         "compliance_maturity": "Advanced"
-    },
-    "Woolworths Group Limited": {
-        "industry": "Retail & Consumer Goods", 
-        "revenue_aud": "$64.3B",
-        "employees": "200,000+",
-        "asx_code": "WOW",
-        "headquarters": "Bella Vista, NSW",
-        "risk_profile": "High",
-        "supplier_count": 45000,
-        "high_risk_countries": ["Bangladesh", "Vietnam", "China", "India"],
-        "esg_score": 68,
-        "last_audit": "2024-02-28",
-        "compliance_maturity": "Developing"
-    },
-    "BHP Group Limited": {
-        "industry": "Mining & Resources",
-        "revenue_aud": "$65.1B", 
-        "employees": "80,000+",
-        "asx_code": "BHP",
-        "headquarters": "Melbourne, VIC",
-        "risk_profile": "High",
-        "supplier_count": 25000,
-        "high_risk_countries": ["Chile", "Peru", "Indonesia", "South Africa"],
-        "esg_score": 72,
-        "last_audit": "2024-01-20",
-        "compliance_maturity": "Advanced"
-    },
-    "Commonwealth Bank of Australia": {
-        "industry": "Financial Services",
-        "revenue_aud": "$26.1B",
-        "employees": "52,000+", 
-        "asx_code": "CBA",
-        "headquarters": "Sydney, NSW",
-        "risk_profile": "Medium",
-        "supplier_count": 18000,
-        "high_risk_countries": ["India", "Philippines", "Malaysia"],
-        "esg_score": 78,
-        "last_audit": "2024-04-10",
-        "compliance_maturity": "Leading"
-    },
-    "Telstra Corporation Limited": {
-        "industry": "Technology & Telecommunications",
-        "revenue_aud": "$23.3B",
-        "employees": "32,000+",
-        "asx_code": "TLS", 
-        "headquarters": "Melbourne, VIC",
-        "risk_profile": "Medium",
-        "supplier_count": 12000,
-        "high_risk_countries": ["China", "Taiwan", "India", "Vietnam"],
-        "esg_score": 74,
-        "last_audit": "2024-03-05",
-        "compliance_maturity": "Advanced"
-    },
-    "Wesfarmers Limited": {
-        "industry": "Retail & Consumer Goods",
-        "revenue_aud": "$43.5B",
-        "employees": "125,000+",
-        "asx_code": "WES",
-        "headquarters": "Perth, WA",
-        "risk_profile": "High",
-        "supplier_count": 38000,
-        "high_risk_countries": ["China", "Bangladesh", "Vietnam", "India"],
-        "esg_score": 69,
-        "last_audit": "2024-02-15",
-        "compliance_maturity": "Developing"
-    },
-    "Fortescue Metals Group": {
-        "industry": "Mining & Resources", 
-        "revenue_aud": "$22.6B",
-        "employees": "23,000+",
-        "asx_code": "FMG",
-        "headquarters": "Perth, WA",
-        "risk_profile": "High",
-        "supplier_count": 8000,
-        "high_risk_countries": ["China", "Indonesia", "Philippines"],
-        "esg_score": 71,
-        "last_audit": "2024-01-30",
-        "compliance_maturity": "Developing"
-    },
-    "Lendlease Group": {
-        "industry": "Property, Construction & Real Estate",
-        "revenue_aud": "$13.7B",
-        "employees": "13,000+",
-        "asx_code": "LLC",
-        "headquarters": "Sydney, NSW",
-        "risk_profile": "Very High",
-        "supplier_count": 22000,
-        "high_risk_countries": ["Bangladesh", "India", "Indonesia", "Malaysia"],
-        "esg_score": 65,
-        "last_audit": "2024-03-20",
-        "compliance_maturity": "Basic"
-    },
-    "Atlassian Corporation": {
-        "industry": "Technology & Telecommunications",
-        "revenue_aud": "$4.4B",
-        "employees": "12,000+",
-        "asx_code": "TEAM",
-        "headquarters": "Sydney, NSW",
-        "risk_profile": "Low",
-        "supplier_count": 5000,
-        "high_risk_countries": ["India", "Philippines", "China"],
-        "esg_score": 82,
-        "last_audit": "2024-04-05",
-        "compliance_maturity": "Leading"
-    },
-    "Santos Limited": {
-        "industry": "Energy & Utilities",
-        "revenue_aud": "$5.9B", 
-        "employees": "3,500+",
-        "asx_code": "STO",
-        "headquarters": "Adelaide, SA",
-        "risk_profile": "Medium",
-        "supplier_count": 7500,
-        "high_risk_countries": ["Indonesia", "Papua New Guinea", "Bangladesh"],
-        "esg_score": 67,
-        "last_audit": "2024-02-10",
-        "compliance_maturity": "Developing"
     }
 }
+
 
 # Enhanced Industry Benchmarks with predictive insights
 INDUSTRY_BENCHMARKS = {
@@ -290,15 +183,15 @@ def get_enhanced_theme_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
         :root {
-            --primary-color: #FFB300;
-            --secondary-color: #FFD54F;
+            --primary-color: #3b82f6;
+            --secondary-color: #1e40af;
             --accent-color: #f59e0b;
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --error-color: #ef4444;
-            --bg-primary: #1e293b;
-            --bg-secondary: #334155;
-            --bg-tertiary: #475569;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
             --border-color: #475569;
@@ -536,18 +429,18 @@ def get_enhanced_theme_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
         :root {
-            --primary-color: #FFB300;
-            --secondary-color: #FFD54F;
+            --primary-color: #3b82f6;
+            --secondary-color: #1d4ed8;
             --accent-color: #f59e0b;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --error-color: #ef4444;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
             --bg-primary: #ffffff;
-            --bg-secondary: #FAFAF9;
+            --bg-secondary: #f8fafc;
             --bg-tertiary: #e2e8f0;
-            --text-primary: #111827;
-            --text-secondary: #6B7280;
-            --border-color: #FFF8E1;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #cbd5e1;
         }
         
         .stApp {
@@ -1000,8 +893,8 @@ def create_enhanced_radar_chart(user_scores, industry_scores, company_name, indu
         theta=categories,
         fill='toself',
         name=f'{company_name} (Current)',
-        line_color='#FFB300',
-        fillcolor='rgba(37, 99, 235, 0.3)',
+        line_color='#3b82f6',
+        fillcolor='rgba(59, 130, 246, 0.3)',
         line_width=3
     ))
     
@@ -1083,7 +976,7 @@ def create_supplier_network_diagram(company_data):
     G.add_node("Main Company", 
                type="company", 
                size=50, 
-               color="#FFB300",
+               color="#3b82f6",
                risk="Medium")
     
     # Add supplier nodes based on company data
@@ -1136,7 +1029,7 @@ def create_supplier_network_diagram(company_data):
     
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=2, color='#6B7280'),
+        line=dict(width=2, color='#475569'),
         hoverinfo='none',
         mode='lines'
     )
@@ -1309,8 +1202,8 @@ def create_compliance_timeline(company_data):
         y=base_scores,
         mode='lines+markers',
         name='Historical Performance',
-        line=dict(color='#FFB300', width=3),
-        marker=dict(size=8, color='#FFB300'),
+        line=dict(color='#3b82f6', width=3),
+        marker=dict(size=8, color='#3b82f6'),
         hovertemplate='<b>Historical</b><br>Date: %{x}<br>Score: %{y:.1f}<extra></extra>'
     ))
     
@@ -1525,19 +1418,19 @@ def generate_ai_insights(recommendation, sentiment_data, company_data):
     if sentiment_data['sentiment_score'] < -0.2:
         insights.append(" Document sentiment analysis indicates defensive tone - consider proactive communication strategy")
     elif sentiment_data['sentiment_score'] > 0.3:
-        insights.append("✅ Positive document sentiment suggests strong leadership commitment")
+        insights.append(" Positive document sentiment suggests strong leadership commitment")
     
     # Maturity-based insights
     maturity = company_data.get('compliance_maturity', 'Developing')
     if maturity == 'Basic':
-        insights.append("🚀 Foundation-building opportunity - focus on quick wins to build momentum")
+        insights.append(" Foundation-building opportunity - focus on quick wins to build momentum")
     elif maturity == 'Leading':
-        insights.append("🏆 Advanced maturity enables innovation in implementation approach")
+        insights.append(" Advanced maturity enables innovation in implementation approach")
     
     # Risk-based insights
     risk_profile = company_data.get('risk_profile', 'Medium')
     if risk_profile in ['High', 'Very High']:
-        insights.append("🎯 High-risk profile requires accelerated timeline and enhanced monitoring")
+        insights.append(" High-risk profile requires accelerated timeline and enhanced monitoring")
     
     # ESG alignment insights
     esg_score = company_data.get('esg_score', 70)
@@ -1548,8 +1441,369 @@ def generate_ai_insights(recommendation, sentiment_data, company_data):
     
     return insights
 
+def generate_comprehensive_pdf_report(analysis_data):
+    """Generate a comprehensive PDF report with all analysis results and visualizations"""
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+    
+    # Custom styles
+    styles = getSampleStyleSheet()
+    
+    # Enhanced custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=HexColor('#3b82f6'),
+        alignment=TA_CENTER,
+        fontName='Helvetica-Bold'
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        textColor=HexColor('#1e293b'),
+        fontName='Helvetica-Bold'
+    )
+    
+    subheading_style = ParagraphStyle(
+        'CustomSubHeading',
+        parent=styles['Heading3'],
+        fontSize=14,
+        spaceAfter=10,
+        textColor=HexColor('#475569'),
+        fontName='Helvetica-Bold'
+    )
+    
+    body_style = ParagraphStyle(
+        'CustomBody',
+        parent=styles['Normal'],
+        fontSize=11,
+        spaceAfter=12,
+        textColor=HexColor('#1e293b'),
+        fontName='Helvetica'
+    )
+    
+    # Build story (content)
+    story = []
+    
+    # Title page
+    story.append(Spacer(1, 1*inch))
+    
+    # Main title
+    title_text = "🛡️ StatementSense AI Analysis Report"
+    story.append(Paragraph(title_text, title_style))
+    story.append(Spacer(1, 0.5*inch))
+    
+    # Company header info
+    company_name = analysis_data.get('company_name', 'Demo Company')
+    industry = analysis_data.get('industry', 'Demo Industry')
+    overall_score = analysis_data.get('overall_score', 80)
+    
+    company_info_text = f"""
+    <b>Company:</b> {company_name}<br/>
+    <b>Industry:</b> {industry}<br/>
+    <b>Overall Score:</b> {overall_score}/100<br/>
+    <b>Report Generated:</b> {datetime.now().strftime('%B %d, %Y at %I:%M %p')}<br/>
+    <b>Analysis Type:</b> Advanced AI-Powered Compliance Assessment
+    """
+    story.append(Paragraph(company_info_text, body_style))
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Executive Summary
+    story.append(Paragraph("Executive Summary", heading_style))
+    
+    performance_level = (
+        "Excellent" if overall_score >= 80 else
+        "Good" if overall_score >= 65 else
+        "Developing" if overall_score >= 45 else
+        "Needs Improvement"
+    )
+    
+    executive_summary = f"""
+    This comprehensive AI-powered analysis evaluated {company_name}'s modern slavery statement across six critical 
+    compliance areas. The organization achieved an overall score of <b>{overall_score}/100</b>, indicating 
+    <b>{performance_level}</b> compliance maturity.
+    
+    The analysis leveraged advanced natural language processing, sentiment analysis, and predictive modeling 
+    to assess governance frameworks, risk assessment capabilities, due diligence processes, remediation 
+    mechanisms, training programs, and effectiveness measurement systems.
+    """
+    story.append(Paragraph(executive_summary, body_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Company intelligence profile
+    if 'company_data' in analysis_data:
+        company_data = analysis_data['company_data']
+        story.append(PageBreak())
+        story.append(Paragraph("Company Intelligence Profile", heading_style))
+        
+        # Company details table
+        company_details = [
+            ['Attribute', 'Value'],
+            ['Industry Sector', company_data.get('industry', 'N/A')],
+            ['Annual Revenue (AUD)', company_data.get('revenue_aud', 'N/A')],
+            ['Employee Count', company_data.get('employees', 'N/A')],
+            ['ASX Code', company_data.get('asx_code', 'N/A')],
+            ['Headquarters', company_data.get('headquarters', 'N/A')],
+            ['Risk Profile', company_data.get('risk_profile', 'N/A')],
+            ['Supplier Count', f"{company_data.get('supplier_count', 'N/A'):,}" if isinstance(company_data.get('supplier_count'), int) else company_data.get('supplier_count', 'N/A')],
+            ['ESG Score', f"{company_data.get('esg_score', 'N/A')}/100" if company_data.get('esg_score') else 'N/A'],
+            ['Compliance Maturity', company_data.get('compliance_maturity', 'N/A')],
+            ['High-Risk Countries', ', '.join(company_data.get('high_risk_countries', []))],
+        ]
+        
+        company_table = Table(company_details, colWidths=[2.5*inch, 3.5*inch])
+        company_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#3b82f6')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), HexColor('#f8fafc')),
+            ('GRID', (0, 0), (-1, -1), 1, black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, HexColor('#f1f5f9')])
+        ]))
+        story.append(company_table)
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Performance Analysis
+    story.append(PageBreak())
+    story.append(Paragraph("Detailed Performance Analysis", heading_style))
+    
+    if 'category_scores' in analysis_data:
+        category_scores = analysis_data['category_scores']
+        
+        # Category scores table
+        categories_display = {
+            "governance": "Governance & Policy Framework",
+            "risk_assessment": "Risk Assessment & Mapping", 
+            "due_diligence": "Due Diligence & Monitoring",
+            "remediation": "Grievance & Remediation",
+            "training": "Training & Capacity Building",
+            "effectiveness": "Performance Measurement"
+        }
+        
+        performance_data = [['Category', 'Score', 'Performance Level', 'Industry Average']]
+        
+        industry_benchmarks = analysis_data.get('industry_benchmarks', {})
+        
+        for category, score in category_scores.items():
+            display_name = categories_display.get(category, category.title())
+            level = "Excellent" if score >= 80 else "Good" if score >= 65 else "Developing" if score >= 45 else "Needs Improvement"
+            industry_avg = industry_benchmarks.get(category, 50)
+            
+            performance_data.append([
+                display_name,
+                f"{score}/100",
+                level,
+                f"{industry_avg}/100"
+            ])
+        
+        performance_table = Table(performance_data, colWidths=[2.5*inch, 1*inch, 1.5*inch, 1*inch])
+        performance_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), HexColor('#3b82f6')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), white),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), HexColor('#f8fafc')),
+            ('GRID', (0, 0), (-1, -1), 1, black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, HexColor('#f1f5f9')])
+        ]))
+        story.append(performance_table)
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Sentiment Analysis Results
+    if 'sentiment_data' in analysis_data:
+        story.append(Paragraph("Document Sentiment Analysis", subheading_style))
+        sentiment_data = analysis_data['sentiment_data']
+        
+        sentiment_text = f"""
+        <b>Sentiment Score:</b> {sentiment_data.get('sentiment_score', 0):.3f} ({sentiment_data.get('sentiment_label', 'Neutral')})<br/>
+        <b>Document Maturity Score:</b> {sentiment_data.get('maturity_score', 0)}/100<br/>
+        <b>Word Count:</b> {sentiment_data.get('word_count', 0):,}<br/>
+        <b>Risk Indicators:</b> {sentiment_data.get('risk_indicators', 0)} instances<br/>
+        <b>Strength Indicators:</b> {sentiment_data.get('strength_indicators', 0)} instances
+        """
+        story.append(Paragraph(sentiment_text, body_style))
+        story.append(Spacer(1, 0.2*inch))
+    
+    # Add charts/visualizations
+    if 'charts' in analysis_data:
+        story.append(PageBreak())
+        story.append(Paragraph("Visual Analysis", heading_style))
+        
+        charts = analysis_data['charts']
+        chart_names = {
+            'radar_chart': 'Performance Radar Analysis',
+            'heatmap': 'Supply Chain Risk Heatmap',
+            'network_diagram': 'Supplier Network Analysis',
+            'timeline': 'Compliance Performance Timeline'
+        }
+        
+        for chart_key, chart_fig in charts.items():
+            if chart_fig is not None:
+                story.append(Paragraph(chart_names.get(chart_key, f'{chart_key.title()} Analysis'), subheading_style))
+                
+                # Export chart as image
+                try:
+                    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmpfile:
+                        chart_fig.write_image(tmpfile.name, width=800, height=600, scale=2)
+                        
+                        # Add image to PDF
+                        img = Image(tmpfile.name)
+                        img.drawHeight = 4*inch
+                        img.drawWidth = 6*inch
+                        story.append(img)
+                        story.append(Spacer(1, 0.2*inch))
+                        
+                        # Clean up temp file
+                        os.unlink(tmpfile.name)
+                except Exception as e:
+                    story.append(Paragraph(f"Chart visualization unavailable: {str(e)}", body_style))
+                    story.append(Spacer(1, 0.2*inch))
+    
+    # Benchmarking Analysis
+    if 'benchmarking' in analysis_data:
+        story.append(PageBreak())
+        story.append(Paragraph("Benchmarking Analysis", heading_style))
+        
+        benchmarking = analysis_data['benchmarking']
+        
+        benchmark_text = f"""
+        <b>Industry Comparison:</b> {benchmarking.get('vs_industry', 0):+.0f} points vs industry average<br/>
+        <b>Industry Percentile:</b> {benchmarking.get('percentile', 50)}th percentile<br/>
+        <b>Compliance Risk Level:</b> {benchmarking.get('risk_level', 'Medium')}<br/>
+        <b>Improvement Potential:</b> {benchmarking.get('improvement_potential', 0)} points to excellence
+        """
+        story.append(Paragraph(benchmark_text, body_style))
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Trend Prediction
+    if 'trend_prediction' in analysis_data:
+        story.append(Paragraph("Predictive Analysis", subheading_style))
+        trend_data = analysis_data['trend_prediction']
+        
+        trend_text = f"""
+        <b>Performance Trend:</b> {trend_data.get('trend', 'Stable')}<br/>
+        <b>Predicted Score (12 months):</b> {trend_data.get('predicted_score', overall_score)}/100<br/>
+        <b>Confidence Level:</b> {trend_data.get('confidence', 75)}%<br/>
+        <b>Key Factors:</b> Industry trends, company maturity, risk profile, and ESG alignment
+        """
+        story.append(Paragraph(trend_text, body_style))
+        story.append(Spacer(1, 0.3*inch))
+    
+    # Recommendations
+    if 'recommendations' in analysis_data and analysis_data['recommendations']:
+        story.append(PageBreak())
+        story.append(Paragraph("Strategic Recommendations", heading_style))
+        
+        for i, rec in enumerate(analysis_data['recommendations'], 1):
+            story.append(Paragraph(f"{i}. {rec.get('title', 'Recommendation')}", subheading_style))
+            
+            # Priority and timeline
+            priority_timeline = f"<b>Priority:</b> {rec.get('priority', 'Medium')} | <b>Timeline:</b> {rec.get('timeline', 'TBD')}"
+            story.append(Paragraph(priority_timeline, body_style))
+            
+            # Description
+            if rec.get('description'):
+                story.append(Paragraph(f"<b>Description:</b> {rec['description']}", body_style))
+            
+            # Actions
+            if rec.get('actions'):
+                story.append(Paragraph("<b>Key Actions:</b>", body_style))
+                for action in rec['actions']:
+                    story.append(Paragraph(f"• {action}", body_style))
+            
+            # Success metrics
+            if rec.get('success_metrics'):
+                story.append(Paragraph("<b>Success Metrics:</b>", body_style))
+                for metric in rec['success_metrics']:
+                    story.append(Paragraph(f"• {metric}", body_style))
+            
+            # ROI Impact
+            if rec.get('roi_impact'):
+                story.append(Paragraph(f"<b>Expected Impact:</b> {rec['roi_impact']}", body_style))
+            
+            # Implementation cost
+            if rec.get('implementation_cost'):
+                story.append(Paragraph(f"<b>Investment Required:</b> {rec['implementation_cost']}", body_style))
+            
+            # AI Insights
+            if rec.get('ai_insights'):
+                story.append(Paragraph("<b>AI Insights:</b>", body_style))
+                for insight in rec['ai_insights']:
+                    story.append(Paragraph(f"🤖 {insight}", body_style))
+            
+            story.append(Spacer(1, 0.3*inch))
+    
+    # Industry Context
+    if 'industry_context' in analysis_data:
+        story.append(PageBreak())
+        story.append(Paragraph("Industry Context & Insights", heading_style))
+        
+        context = analysis_data['industry_context']
+        
+        context_text = f"""
+        <b>Industry:</b> {context.get('industry_name', industry)}<br/>
+        <b>Risk Multiplier:</b> {context.get('risk_multiplier', 1.0)}x<br/>
+        <b>Industry Trend:</b> {context.get('trend', 'Stable')}<br/>
+        <b>Average Industry Score:</b> {context.get('avg_score', 50)}/100<br/>
+        """
+        story.append(Paragraph(context_text, body_style))
+        
+        # High risk factors
+        if context.get('high_risk_factors'):
+            story.append(Paragraph("<b>Key Risk Factors in Industry:</b>", body_style))
+            for factor in context['high_risk_factors']:
+                story.append(Paragraph(f"• {factor}", body_style))
+        
+        # Key challenges
+        if context.get('key_challenges'):
+            story.append(Paragraph("<b>Common Industry Challenges:</b>", body_style))
+            for challenge in context['key_challenges']:
+                story.append(Paragraph(f"• {challenge}", body_style))
+        
+        # Emerging risks
+        if context.get('emerging_risks'):
+            story.append(Paragraph("<b>Emerging Risks:</b>", body_style))
+            for risk in context['emerging_risks']:
+                story.append(Paragraph(f"• {risk}", body_style))
+    
+    # Footer/Disclaimer
+    story.append(PageBreak())
+    story.append(Paragraph("Report Disclaimer", heading_style))
+    
+    disclaimer_text = """
+    This report was generated using StatementSense AI-powered analysis platform. The analysis is based on 
+    natural language processing of the submitted modern slavery statement and comparison against industry 
+    benchmarks. 
+    
+    While our AI models have been trained on extensive compliance frameworks and industry data, this report 
+    should be used as a guidance tool alongside professional legal and compliance advice. Organizations should 
+    conduct thorough internal reviews and seek appropriate professional counsel for compliance matters.
+    
+    For questions about this analysis or to schedule a consultation, please contact StatementSense support.
+    """
+    story.append(Paragraph(disclaimer_text, body_style))
+    
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
 def enhanced_upload_and_analyze_tab():
-    st.markdown("## 🔍 AI-Powered Statement Analysis")
+    st.markdown("##  AI-Powered Statement Analysis")
     
     col1, col2 = st.columns([2, 1])
     
@@ -1570,7 +1824,7 @@ def enhanced_upload_and_analyze_tab():
         )
         
         # Advanced options
-        with st.expander("⚙️ Advanced Analysis Options"):
+        with st.expander(" Advanced Analysis Options"):
             col_a, col_b = st.columns(2)
             with col_a:
                 analysis_depth = st.selectbox("Analysis Depth", ["Standard", "Deep", "Comprehensive"])
@@ -1582,22 +1836,22 @@ def enhanced_upload_and_analyze_tab():
     with col2:
         st.markdown("""
         <div class="dashboard-card">
-            <h4>🎯 Enhanced Analysis Framework</h4>
+            <h4> Enhanced Analysis Framework</h4>
             <ul style="margin: 0; padding-left: 1.2rem;">
-                <li>🏛️ Governance & Policy Framework</li>
-                <li>🔍 Risk Assessment & Mapping</li>
-                <li>⚖️ Due Diligence & Monitoring</li>
-                <li>🛠️ Remediation & Response</li>
-                <li>👥 Training & Capacity Building</li>
-                <li>📊 Effectiveness & Measurement</li>
+                <li> Governance & Policy Framework</li>
+                <li> Risk Assessment & Mapping</li>
+                <li> Due Diligence & Monitoring</li>
+                <li> Remediation & Response</li>
+                <li> Training & Capacity Building</li>
+                <li> Effectiveness & Measurement</li>
             </ul>
             <hr style="margin: 1rem 0; border-color: #475569;">
-            <h4>🚀 AI Features</h4>
+            <h4> AI Features</h4>
             <ul style="margin: 0; padding-left: 1.2rem;">
-                <li>🧠 Sentiment Analysis</li>
-                <li>🔮 Predictive Insights</li>
-                <li>🌐 Risk Mapping</li>
-                <li>📈 Trend Analysis</li>
+                <li> Sentiment Analysis</li>
+                <li> Predictive Insights</li>
+                <li> Risk Mapping</li>
+                <li> Trend Analysis</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -1635,17 +1889,60 @@ def enhanced_upload_and_analyze_tab():
             company_name, company_data, confidence = enhanced_ai_identify_company(text_content)
             industry = company_data['industry']
             overall_score, category_scores, sentiment_data, trend_prediction = enhanced_pdf_analysis(text_content, industry, company_data)
+            
+            # Get industry benchmarks
+            industry_benchmarks = INDUSTRY_BENCHMARKS[industry]
+            
+            # Generate recommendations
+            recommendations = generate_smart_recommendations(category_scores, industry, company_name, company_data, sentiment_data)
+            
+            # Create all visualizations
+            radar_fig = create_enhanced_radar_chart(category_scores, industry_benchmarks, company_name, industry, trend_prediction)
+            heatmap_fig = create_risk_heatmap(company_data, industry_benchmarks)
+            network_fig = create_supplier_network_diagram(company_data)
+            timeline_fig = create_compliance_timeline(company_data)
+            
+            # Calculate benchmarking data
+            industry_avg = industry_benchmarks['avg_score']
+            vs_industry = overall_score - industry_avg
+            percentile = min(95, max(5, int(50 + (vs_industry * 2))))
+            risk_level = "Low" if overall_score > 75 else "Medium" if overall_score > 55 else "High"
+            improvement_potential = max(0, 85 - overall_score)
+            
+            # Store comprehensive analysis data
+            comprehensive_analysis_data = {
+                "company": company_name,
+                "score": overall_score,
+                "industry": industry,
+                "date": datetime.now().isoformat(),
+                "company_name": company_name,
+                "overall_score": overall_score,
+                "category_scores": category_scores,
+                "company_data": company_data,
+                "sentiment_data": sentiment_data,
+                "trend_prediction": trend_prediction,
+                "recommendations": recommendations,
+                "benchmarking": {
+                    "vs_industry": vs_industry,
+                    "percentile": percentile,
+                    "risk_level": risk_level,
+                    "improvement_potential": improvement_potential
+                },
+                "industry_benchmarks": industry_benchmarks,
+                "industry_context": industry_benchmarks,
+                "charts": {
+                    "radar_chart": radar_fig,
+                    "heatmap": heatmap_fig,
+                    "network_diagram": network_fig,
+                    "timeline": timeline_fig
+                }
+            }
         
         progress_bar.empty()
         status_text.empty()
         
-        # Add to analysis history
-        st.session_state.analysis_history.append({
-            "company": company_name,
-            "score": overall_score,
-            "industry": industry,
-            "date": datetime.now().isoformat()
-        })
+        # Add comprehensive data to analysis history
+        st.session_state.analysis_history.append(comprehensive_analysis_data)
         
         st.success(f"✅ Analysis completed! Company identified with {confidence}% confidence.")
         
@@ -1657,7 +1954,7 @@ def enhanced_upload_and_analyze_tab():
         with col1:
             st.markdown(f"""
             <div class="company-info-card">
-                <h2 style="margin: 0 0 1.5rem 0; color: #FFB300;">{company_name}</h2>
+                <h2 style="margin: 0 0 1.5rem 0; color: #3b82f6;">{company_name}</h2>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                     <div>
                         <strong>Industry:</strong><br>
@@ -1715,11 +2012,11 @@ def enhanced_upload_and_analyze_tab():
             st.markdown(f"""
             <div class="metric-card {score_class}">
                 <div style="text-align: center;">
-                    <div style="font-size: 3.5rem; font-weight: 900; margin: 0; background: linear-gradient(45deg, #FFB300, #FFD54F); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{overall_score}</div>
+                    <div style="font-size: 3.5rem; font-weight: 900; margin: 0; background: linear-gradient(45deg, #3b82f6, #1d4ed8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{overall_score}</div>
                     <div style="font-size: 1.3rem; opacity: 0.8; margin: 0.5rem 0;">/ 100</div>
                     <div style="font-size: 1.2rem; font-weight: 700; margin: 1rem 0;">{performance_level}</div>
                     <div style="font-size: 0.95rem; opacity: 0.7;">AI Compliance Score</div>
-                    <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(37, 99, 235, 0.1); border-radius: 8px;">
+                    <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
                         <div style="font-size: 0.9rem;">Trend: <span style="color: {trend_prediction['color']}; font-weight: 600;">{trend_prediction['trend']}</span></div>
                         <div style="font-size: 0.8rem; opacity: 0.8;">Confidence: {trend_prediction['confidence']}%</div>
                     </div>
@@ -1744,10 +2041,7 @@ def enhanced_upload_and_analyze_tab():
             """, unsafe_allow_html=True)
         
         # Enhanced Performance Analysis
-        st.markdown("## 📊 Advanced Performance Analysis")
-        
-        # Get industry benchmarks
-        industry_benchmarks = INDUSTRY_BENCHMARKS[industry]
+        st.markdown("##  Advanced Performance Analysis")
         
         # Create enhanced radar chart
         radar_fig = create_enhanced_radar_chart(category_scores, industry_benchmarks, company_name, industry, trend_prediction)
@@ -1758,7 +2052,7 @@ def enhanced_upload_and_analyze_tab():
             st.plotly_chart(radar_fig, use_container_width=True)
         
         with col2:
-            st.markdown("### 💪 Key Strengths")
+            st.markdown("###  Key Strengths")
             strengths = [(k, v) for k, v in category_scores.items() if v >= 65]
             strengths.sort(key=lambda x: x[1], reverse=True)
             
@@ -1784,7 +2078,7 @@ def enhanced_upload_and_analyze_tab():
             else:
                 st.info("💡 Focus on building foundational strengths")
             
-            st.markdown("### ⚠️ Priority Areas")
+            st.markdown("###  Priority Areas")
             weaknesses = [(k, v) for k, v in category_scores.items() if v < 55]
             weaknesses.sort(key=lambda x: x[1])
             
@@ -1820,7 +2114,7 @@ def enhanced_upload_and_analyze_tab():
         st.plotly_chart(timeline_fig, use_container_width=True)
         
         # Enhanced Benchmarking Analysis
-        st.markdown("## 🏆 Advanced Benchmarking Intelligence")
+        st.markdown("##  Advanced Benchmarking Intelligence")
         
         col1, col2, col3, col4 = st.columns(4)
         
@@ -1848,7 +2142,7 @@ def enhanced_upload_and_analyze_tab():
             st.markdown(f"""
             <div class="metric-card">
                 <h4>Industry Percentile</h4>
-                <div style="font-size: 2.5rem; color: #FFB300; text-align: center;">{percentile}th</div>
+                <div style="font-size: 2.5rem; color: #3b82f6; text-align: center;">{percentile}th</div>
                 <div style="text-align: center; margin-top: 0.5rem;">
                     <small>performance ranking</small>
                 </div>
@@ -1880,55 +2174,41 @@ def enhanced_upload_and_analyze_tab():
             </div>
             """, unsafe_allow_html=True)
         
-        # Enhanced Recommendations with AI Insights
-        st.markdown("## 🎯 AI-Generated Strategic Recommendations")
-        
-        recommendations = generate_smart_recommendations(category_scores, industry, company_name, company_data, sentiment_data)
-        
-        # Display recommendations in tabs for better organization
+        # Strategic Recommendations Section
         if recommendations:
-            rec_tabs = st.tabs([f"{rec['priority']} Priority" for rec in recommendations[:4]])
+            st.markdown("## 🎯 Strategic Recommendations")
             
-            for i, (tab, rec) in enumerate(zip(rec_tabs, recommendations[:4])):
-                with tab:
-                    priority_colors = {
-                        "Critical": {"bg": "#fef2f2", "border": "#dc2626", "text": "#991b1b"},
-                        "High": {"bg": "#fff7ed", "border": "#ea580c", "text": "#9a3412"},
-                        "Medium": {"bg": "#fefce8", "border": "#ca8a04", "text": "#a16207"}
-                    }
+            for i, rec in enumerate(recommendations, 1):
+                with st.expander(f" {rec.get('priority', 'Medium')} Priority: {rec.get('title', 'Recommendation')}", expanded=i==1):
+                    col1, col2 = st.columns([2, 1])
                     
-                    colors = priority_colors.get(rec['priority'], priority_colors['Medium'])
+                    with col1:
+                        st.markdown(f"**Timeline:** {rec.get('timeline', 'TBD')}")
+                        st.markdown(f"**Description:** {rec.get('description', 'N/A')}")
+                        
+                        if rec.get('actions'):
+                            st.markdown("**Key Actions:**")
+                            for action in rec['actions']:
+                                st.markdown(f"• {action}")
+                        
+                        if rec.get('success_metrics'):
+                            st.markdown("**Success Metrics:**")
+                            for metric in rec['success_metrics']:
+                                st.markdown(f"• {metric}")
                     
-                    st.markdown(f"""
-                    <div class="recommendation-box">
-                        <h3 style="color: {colors['text']}; margin: 0 0 1rem 0;">{rec['title']}</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                            <div><strong>Timeline:</strong> {rec['timeline']}</div>
-                            <div><strong>Investment:</strong> {rec.get('implementation_cost', 'To be determined')}</div>
+                    with col2:
+                        st.markdown(f"""
+                        <div class="recommendation-box">
+                            <div><strong>ROI Impact:</strong><br>{rec.get('roi_impact', 'TBD')}</div>
+                            <div style="margin-top: 1rem;"><strong>Investment:</strong><br>{rec.get('implementation_cost', 'TBD')}</div>
                         </div>
-                        <p><strong>Strategic Impact:</strong> {rec['description']}</p>
-                        <p><strong>Industry Context:</strong> {rec['industry_context']}</p>
-                        <p><strong>Expected ROI:</strong> {rec.get('roi_impact', 'Significant compliance improvement expected')}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    col_a, col_b = st.columns(2)
-                    
-                    with col_a:
-                        st.markdown("**Implementation Steps:**")
-                        for step in rec['actions']:
-                            st.markdown(f"• {step}")
-                    
-                    with col_b:
-                        st.markdown("**Success Metrics:**")
-                        for metric in rec['success_metrics']:
-                            st.markdown(f"📊 {metric}")
-                    
-                    # AI Insights
-                    if 'ai_insights' in rec and rec['ai_insights']:
-                        st.markdown("**🤖 AI Insights:**")
-                        for insight in rec['ai_insights']:
-                            st.info(insight)
+                        """, unsafe_allow_html=True)
+                        
+                        if rec.get('ai_insights'):
+                            st.markdown("**AI Insights:**")
+                            for insight in rec['ai_insights']:
+                                st.info(f"🤖 {insight}")
+
 
 def main():
     # Apply enhanced theme CSS
@@ -1936,7 +2216,7 @@ def main():
     
     # Sidebar for navigation and settings
     with st.sidebar:
-        st.markdown("### 🛡️ SmartCompliance AI")
+        st.markdown("### 🛡️ StatementSense")
         
         # User profile section
         st.markdown("#### User Profile")
@@ -1950,9 +2230,9 @@ def main():
                     st.success("Profile saved!")
         else:
             profile = st.session_state.user_profile
-            st.write(f"👤 **{profile['name']}**")
-            st.write(f"💼 {profile['role']}")
-            st.write(f"🏢 {profile['company_type']}")
+            st.write(f" **{profile['name']}**")
+            st.write(f" {profile['role']}")
+            st.write(f" {profile['company_type']}")
             if st.button("Edit Profile"):
                 st.session_state.user_profile = {}
                 st.rerun()
@@ -1965,13 +2245,95 @@ def main():
             st.session_state.analysis_history = []
             st.success("Ready for new analysis!")
         
-        if st.button("📊 Export Report"):
-            st.success("Report exported! (Demo)")
+        # Enhanced PDF Export Section
+        if st.session_state.analysis_history:
+            latest = st.session_state.analysis_history[-1]
+            pdf_buffer = generate_comprehensive_pdf_report(latest)
+            file_name = f"StatementSense_Comprehensive_Report_{latest['company'].replace(' ', '_')}.pdf"
+            
+            st.download_button(
+                label="📄 Export Comprehensive Report",
+                data=pdf_buffer,
+                file_name=file_name,
+                mime="application/pdf",
+                help="Download complete analysis with all visualizations and insights"
+            )
+        else:
+            # Demo export with comprehensive sample data
+            demo_analysis = {
+                'company_name': 'Demo Company',
+                'industry': 'Financial Services',
+                'overall_score': 80,
+                'category_scores': {
+                    'governance': 75,
+                    'risk_assessment': 82,
+                    'due_diligence': 78,
+                    'remediation': 71,
+                    'training': 85,
+                    'effectiveness': 73
+                },
+                'company_data': {
+                    'industry': 'Financial Services',
+                    'revenue_aud': '$21.2B',
+                    'employees': '40,000+',
+                    'asx_code': 'WBC',
+                    'headquarters': 'Sydney, NSW',
+                    'risk_profile': 'Medium',
+                    'supplier_count': 15000,
+                    'high_risk_countries': ['Indonesia', 'Philippines', 'India'],
+                    'esg_score': 76,
+                    'compliance_maturity': 'Advanced'
+                },
+                'sentiment_data': {
+                    'sentiment_score': 0.15,
+                    'sentiment_label': 'Positive',
+                    'maturity_score': 78,
+                    'word_count': 3500,
+                    'risk_indicators': 12,
+                    'strength_indicators': 28
+                },
+                'trend_prediction': {
+                    'trend': 'Moderate Upward',
+                    'predicted_score': 85,
+                    'confidence': 82,
+                    'color': '#059669'
+                },
+                'recommendations': [
+                    {
+                        'title': 'Enhance Risk Assessment Framework',
+                        'priority': 'High',
+                        'timeline': 'Short-term (3-6 months)',
+                        'description': 'Implement AI-powered risk screening across supply chain',
+                        'actions': ['Deploy risk mapping tools', 'Conduct supplier assessments'],
+                        'success_metrics': ['90% supplier coverage', 'Risk detection improvement'],
+                        'roi_impact': '30% reduction in compliance incidents',
+                        'implementation_cost': '$250,000 - $500,000',
+                        'ai_insights': ['Strong foundation for advanced implementation']
+                    }
+                ],
+                'benchmarking': {
+                    'vs_industry': 22,
+                    'percentile': 85,
+                    'risk_level': 'Low',
+                    'improvement_potential': 5
+                },
+                'industry_benchmarks': INDUSTRY_BENCHMARKS.get('Financial Services', {}),
+                'industry_context': INDUSTRY_BENCHMARKS.get('Financial Services', {})
+            }
+            
+            pdf_buffer = generate_comprehensive_pdf_report(demo_analysis)
+            file_name = "StatementSense_Demo_Comprehensive_Report.pdf"
+            
+            st.download_button(
+                label="📄 Export Report",
+                data=pdf_buffer,
+                file_name=file_name,
+                mime="application/pdf",
+                help="Download demo comprehensive report"
+            )
         
-        if st.button("🌓 Toggle Theme"):
-            st.session_state.theme = 'dark' if st.session_state.theme == 'light' else 'light'
-            st.rerun()
-        
+        if st.button("⚙️ Settings"):
+            st.info("Settings panel (Demo)")
         st.markdown("---")
         
         # Analysis history
@@ -1985,11 +2347,11 @@ def main():
         st.markdown("---")
         
         # Alerts section
-        st.markdown("#### 🚨 Alerts")
+        st.markdown("####  Alerts")
         alerts = [
-            "🔴 New regulation: EU Corporate Sustainability Due Diligence",
-            "🟡 Industry benchmark updated: Financial Services",
-            "🟢 Integration available: SAP Ariba connector"
+            " New regulation: EU Corporate Sustainability Due Diligence",
+            " Industry benchmark updated: Financial Services",
+            " Integration available: SAP Ariba connector"
         ]
         for alert in alerts:
             st.caption(alert)

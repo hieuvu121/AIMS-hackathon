@@ -378,7 +378,7 @@ st.markdown("""
     }
     
     .metric-card {
-        background: white;
+        background: black;
         border: 2px solid #e5e7eb;
         border-radius: 15px;
         padding: 2rem;
@@ -396,8 +396,14 @@ st.markdown("""
     .metric-card h3 {
         font-size: 2.5rem;
         font-weight: 900;
-        color: #fbbf24;
+        color: white;
         margin: 0 0 0.5rem 0;
+    }
+    
+    .metric-card p {
+        color: #e2e8f0;
+        font-weight: 600;
+        margin: 0;
     }
     
     .emergency-box {
