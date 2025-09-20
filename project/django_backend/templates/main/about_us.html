@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - LIGHT CARRIERS{% endblock %}
+
+{% block content %}
+<section class="page-content">
+    <div class="container">
+        <h1 class="page-title">About Us</h1>
+        <p class="page-subtitle">
+            Learn about our mission to eliminate modern slavery from supply chains worldwide through data-driven insights and collaborative action.
+        </p>
+        
+        <div class="content-section">
+            <h3>Our Mission</h3>
+            <p>
+                Light Carriers is dedicated to eliminating modern slavery from global supply chains through 
+                comprehensive data analysis, transparent reporting, and collaborative action. We believe that 
+                by shining a light on modern slavery reporting practices, we can drive meaningful change and 
+                protect vulnerable workers worldwide.
+            </p>
+            <p>
+                Our mission is to provide organizations with the tools, insights, and support they need to 
+                identify, prevent, and eliminate modern slavery from their supply chains. We work with 
+                businesses, NGOs, governments, and other stakeholders to create a more ethical and 
+                transparent global economy.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Our Approach</h3>
+            <p>
+                We use data-driven insights to assess modern slavery reporting across business sectors, 
+                identifying trends, gaps, and best practices. Our comprehensive methodology evaluates 
+                policy development, implementation effectiveness, and transparency levels to provide 
+                actionable recommendations for improvement.
+            </p>
+            <p>
+                Our approach combines quantitative analysis with qualitative assessment, incorporating 
+                stakeholder feedback and expert opinions to ensure comprehensive and balanced evaluation. 
+                We focus on practical solutions and real-world impact, helping organizations implement 
+                effective modern slavery prevention and remediation measures.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Our Team</h3>
+            <p>
+                Our team brings together experts in human rights, supply chain management, data analysis, 
+                and policy development. We have extensive experience working with multinational corporations, 
+                NGOs, and government agencies to address modern slavery and human trafficking issues.
+            </p>
+            <p>
+                Our diverse team includes researchers, analysts, policy experts, and field practitioners 
+                who work collaboratively to develop innovative solutions and drive meaningful change. 
+                We are committed to continuous learning and improvement, staying current with evolving 
+                best practices and emerging challenges in the fight against modern slavery.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Our Impact</h3>
+            <p>
+                Since our founding, we have helped hundreds of organizations improve their modern slavery 
+                reporting and compliance efforts. Our data and insights have been used by businesses, 
+                investors, and policymakers to make informed decisions and drive positive change.
+            </p>
+            <p>
+                We have contributed to the development of industry standards, best practice guidelines, 
+                and policy recommendations that have improved modern slavery prevention and remediation 
+                efforts worldwide. Our work has been recognized by international organizations and 
+                industry leaders for its impact and innovation.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Our Values</h3>
+            <p>
+                We are committed to transparency, accountability, and collaboration in all our work. 
+                We believe that addressing modern slavery requires a collective effort and that all 
+                stakeholders have a role to play in creating a more ethical and sustainable global economy.
+            </p>
+            <p>
+                Our values guide everything we do, from our research methodology to our stakeholder 
+                engagement approach. We are committed to continuous improvement, learning from our 
+                experiences and adapting our methods to better serve our mission and the communities 
+                we work with.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Action Banner -->
+<section class="action-banner">
+    <div class="action-banner-content">
+        <h2>Get Involved</h2>
+        <p>Join us in our mission to eliminate modern slavery from global supply chains.</p>
+        <div class="action-buttons">
+            <a href="{% url 'methods' %}" class="btn-primary">Learn More</a>
+            <a href="mailto:info@lightcarriers.org" class="btn-secondary">Contact Us</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

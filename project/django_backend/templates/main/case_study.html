@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Case Study - LIGHT CARRIERS{% endblock %}
+
+{% block content %}
+<section class="page-content">
+    <div class="container">
+        <h1 class="page-title">Case Study</h1>
+        <p class="page-subtitle">
+            Real-world examples of modern slavery reporting and compliance across different industries.
+        </p>
+        
+        <div class="content-section">
+            <h3>Technology Sector Analysis</h3>
+            <p>
+                Our comprehensive analysis of modern slavery reporting in the technology sector reveals significant 
+                variations in transparency and accountability. We examine how major tech companies address forced 
+                labor in their supply chains, from raw material sourcing to manufacturing processes.
+            </p>
+            <p>
+                Key findings include the importance of supplier audits, worker education programs, and the 
+                implementation of robust due diligence processes. Companies that excel in modern slavery reporting 
+                demonstrate clear policies, regular monitoring, and transparent communication with stakeholders.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Fashion Industry Insights</h3>
+            <p>
+                The fashion industry faces unique challenges in addressing modern slavery due to complex, 
+                multi-tier supply chains. Our case studies highlight successful approaches to identifying 
+                and eliminating forced labor in garment manufacturing and textile production.
+            </p>
+            <p>
+                We examine the role of certification programs, supplier partnerships, and technology solutions 
+                in improving supply chain transparency. Leading fashion brands are implementing innovative 
+                approaches to ensure ethical sourcing and protect worker rights throughout their supply chains.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Agricultural Sector Challenges</h3>
+            <p>
+                Agricultural supply chains present particular challenges for modern slavery detection and 
+                prevention. Our research focuses on seasonal workers, migrant labor, and the informal 
+                economy's role in agricultural production.
+            </p>
+            <p>
+                Successful interventions include community-based monitoring, worker empowerment programs, 
+                and collaboration with local organizations. We document how companies are working with 
+                farmers, cooperatives, and NGOs to create more ethical and sustainable agricultural supply chains.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Methodology and Data Sources</h3>
+            <p>
+                Our case studies are based on publicly available information, including company reports, 
+                regulatory filings, and third-party assessments. We use a standardized framework to evaluate 
+                reporting quality, policy effectiveness, and implementation success.
+            </p>
+            <p>
+                Data collection includes annual reports, sustainability reports, modern slavery statements, 
+                and other relevant documentation. We also incorporate feedback from stakeholders, including 
+                NGOs, worker organizations, and industry experts.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Action Banner -->
+<section class="action-banner">
+    <div class="action-banner-content">
+        <h2>Explore Our Methods</h2>
+        <p>Learn about our comprehensive approach to modern slavery assessment and reporting.</p>
+        <div class="action-buttons">
+            <a href="{% url 'methods' %}" class="btn-primary">View Methods</a>
+            <a href="{% url 'about_us' %}" class="btn-secondary">About Us</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

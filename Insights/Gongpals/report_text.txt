@@ -1,0 +1,203 @@
+Modern Slavery Compliance Lite Report - Development Prompt
+PROJECT OVERVIEW
+Create a web-based lite report dashboard for modern slavery compliance analysis focusing on the 2 largest sectors by weight in the AIMS dataset over a 5-year period (2020-2025) for demonstration and comparison purposes.
+REQUIRED FEATURES & COMPONENTS
+
+Data Scope Summary Section
+
+
+Display summary statistics of the analyzed dataset
+Show date range, number of companies, sectors covered
+Include data collection methodology overview
+
+
+Overall Compliance Rate Dashboard
+
+
+Primary Display: Overall compliance percentage as a clickable metric
+Interactive Feature: When clicked, show a heatmap/matrix visualization
+
+Rows: Different sectors
+Color intensity: Compliance rates (darker = lower compliance)
+Include hover tooltips with exact percentages
+
+
+
+
+Key Findings Section
+
+
+Summary of main insights from the analysis
+Highlight critical compliance gaps
+Statistical summaries of sector performance
+
+
+Average Disclosure Score Visualization
+
+
+Interactive chart showing average disclosure scores (out of 100%)
+Sector Filter: Dropdown/toggle to filter by specific sectors
+Display scores for each weighted category:
+
+Structure and operation (10% weight)
+Supply chain (15% weight)
+Modern slavery risks in operations and supply chains (30% weight)
+Due diligence and remediation processes (25% weight)
+Effective assessment (20% weight)
+
+
+
+
+Policy vs Action Analysis
+
+
+Chart showing "Percentage of companies with remediation policies but zero action taken"
+Filter by sectors
+Include breakdown by company size if data available
+
+
+Minimum Requirement Analysis
+
+
+Display "Percentage of companies that do not meet Level 1 bare minimum requirements"
+Filter by sector
+Trend Visualization: Line chart (2020-2025)
+
+X-axis: Years
+Y-axis: Percentage not meeting requirements
+Multiple lines: One per sector
+Interactive legend to show/hide sectors
+
+
+
+
+Further Findings - Detailed Compliance Analysis
+
+SCORING METHODOLOGY
+For each requirement, calculate compliance using this 2-level system:
+
+Each criterion has multiple sections with 2 levels each
+Calculate mean percentage for Level 1 and Level 2 compliance
+If company meets Level 2, they automatically meet Level 1
+Single-level sections are mandatory
+
+REQUIRED COMPLIANCE METRICS (each with Level 1/Level 2 granularity):
+
+Organizational Coverage
+
+Score based on coverage of linked organizations
+50% weight per level
+
+
+Organizational Structure Description
+
+Organization and supply chain structure
+Supply chain understanding
+Direct and indirect suppliers
+50% weight per level
+
+
+Remediation Policies Score
+
+Policy comprehensiveness and implementation
+50% weight per level
+
+
+Risk Management Processes
+
+Assessment procedures for modern slavery risks
+Supply chain risk management
+50% weight per level
+
+
+Modern Slavery Policies
+
+Policy existence and quality
+Implementation framework
+50% weight per level
+
+
+Employee Training Programs
+
+Training coverage and effectiveness
+Modern slavery awareness programs
+50% weight per level
+
+
+Effectiveness Assessment
+
+Due diligence process evaluation
+Action effectiveness measurement
+Prevention and response mechanisms
+50% weight per level
+
+
+
+TECHNICAL REQUIREMENTS
+Frontend Framework
+
+Use React with TypeScript for type safety
+Implement responsive design for desktop/tablet viewing
+Use a modern charting library (Recharts, Chart.js, or D3.js)
+
+Data Visualization
+
+Interactive charts with filtering capabilities
+Heatmaps for compliance matrices
+Line charts for trend analysis
+Progress bars/gauges for score displays
+Color coding for compliance levels (red/amber/green)
+
+User Interface
+
+Clean, professional dashboard layout
+Sector filtering throughout all visualizations
+Export functionality for charts/data
+Print-friendly report view
+Loading states and error handling
+
+Data Structure Expected
+interface CompanyData {
+id: string;
+name: string;
+sector: string;
+year: number;
+overallCompliance: number;
+categoryScores: {
+structureOperation: number;
+supplyChain: number;
+modernSlaveryRisks: number;
+dueDiligence: number;
+effectiveAssessment: number;
+};
+levelCompliance: {
+level1: boolean;
+level2: boolean;
+};
+hasRemediationPolicy: boolean;
+hasTakenAction: boolean;
+requirementScores: {
+[requirementName: string]: {
+level1Score: number;
+level2Score: number;
+};
+};
+}
+IMPLEMENTATION PRIORITY
+
+Set up basic dashboard layout and navigation
+Implement overall compliance rate with heatmap
+Add sector filtering functionality
+Create disclosure score visualizations
+Build trend analysis charts
+Add detailed compliance metrics
+Implement export and print features
+Add responsive design and polish
+
+ADDITIONAL NOTES
+
+Ensure all percentages are clearly labeled
+Include data source attribution
+Add help/info tooltips for complex metrics
+Consider accessibility requirements (WCAG compliance)
+Plan for future scalability to additional sectors/years

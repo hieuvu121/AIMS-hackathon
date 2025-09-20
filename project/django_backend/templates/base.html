@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LIGHT CARRIERS{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <h1>LIGHT CARRIERS</h1>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <input type="text" placeholder="Search" class="search-input">
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                                <span class="nav-icon">💡</span>
+                                HOME
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'case_study' %}" class="nav-link {% if request.resolver_match.url_name == 'case_study' %}active{% endif %}">
+                                CASE STUDY
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'methods' %}" class="nav-link {% if request.resolver_match.url_name == 'methods' %}active{% endif %}">
+                                METHODS
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'about_us' %}" class="nav-link {% if request.resolver_match.url_name == 'about_us' %}active{% endif %}">
+                                ABOUT US
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                SHARE
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <section class="newsletter">
+    <div class="container">
+        <div class="newsletter-separator"></div>
+        <h2>Stay Updated</h2>
+        <form class="newsletter-form" method="post" action="{% url 'newsletter_signup' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn-submit">Submit</button>
+        </form>
+    </div>
+</section> 
+     
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LIGHT CARRIERS</h3>
+                    <p>Eliminating modern slavery from supply chains worldwide.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'case_study' %}">Case Study</a></li>
+                        <li><a href="{% url 'methods' %}">Methods</a></li>
+                        <li><a href="{% url 'about_us' %}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Email: info@lightcarriers.org</p>
+                    <p>Phone: +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Light Carriers. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}LIGHT CARRIERS - Beyond Compliance{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-image">
+        <!-- Forest image background handled by CSS -->
+    </div>
+    <div class="hero-content">
+        <h1 class="hero-title">BEYOND COMPLIANCE</h1>
+        <p class="hero-subtitle">
+            A living data dashboard assessing modern slavery reporting across business sectors.
+        </p>
+        <div class="hero-buttons">
+            <a href="{% url 'methods' %}" class="btn-primary">TAKE ACTION</a>
+            <a href="{% url 'about_us' %}" class="btn-secondary">LEARN MORE</a>
+        </div>
+    </div>
+</section>
+
+<!-- Understanding Section -->
+<section class="page-content">
+    <div class="container">
+        <div class="content-section">
+            <h2 class="page-title">Understanding of Modern Slavery</h2>
+            <p class="page-subtitle">
+                Our comprehensive approach to identifying and eliminating modern slavery in supply chains worldwide.
+            </p>
+            
+            <div class="content-section">
+                <h3>Data-Driven Insights</h3>
+                <p>
+                    We analyze modern slavery reporting across various business sectors to provide actionable insights 
+                    and help organizations improve their compliance and ethical practices. Our dashboard tracks trends, 
+                    identifies gaps, and highlights best practices in modern slavery reporting.
+                </p>
+            </div>
+            
+            <div class="content-section">
+                <h3>Comprehensive Assessment</h3>
+                <p>
+                    Our methodology goes beyond basic compliance requirements to assess the depth and quality of 
+                    modern slavery reporting. We evaluate transparency, accountability, and the effectiveness of 
+                    measures taken by organizations to combat modern slavery in their supply chains.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Action Banner -->
+<section class="action-banner">
+    <div class="action-banner-content">
+        <h2>Ready to Take Action?</h2>
+        <p>Join thousands of organizations working together to eliminate modern slavery from supply chains worldwide.</p>
+        <div class="action-buttons">
+            <a href="{% url 'methods' %}" class="btn-primary">View Methods</a>
+            <a href="{% url 'about_us' %}" class="btn-secondary">Contact Us</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

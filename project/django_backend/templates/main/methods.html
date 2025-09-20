@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Methods - LIGHT CARRIERS{% endblock %}
+
+{% block content %}
+<section class="page-content">
+    <div class="container">
+        <h1 class="page-title">Methods</h1>
+        <p class="page-subtitle">
+            Our comprehensive methodology for assessing modern slavery reporting and compliance across business sectors.
+        </p>
+        
+        <div class="content-section">
+            <h3>Assessment Framework</h3>
+            <p>
+                Our methodology is built on a robust framework that evaluates modern slavery reporting across 
+                multiple dimensions. We assess policy development, implementation effectiveness, transparency 
+                levels, and stakeholder engagement to provide a comprehensive view of organizational efforts.
+            </p>
+            <p>
+                The framework includes quantitative metrics for reporting completeness, qualitative analysis 
+                of policy depth, and stakeholder feedback integration. This multi-faceted approach ensures 
+                a balanced and thorough assessment of modern slavery reporting practices.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Data Collection Process</h3>
+            <p>
+                We systematically collect data from multiple sources to ensure comprehensive coverage and 
+                accuracy. Our process includes automated data extraction, manual verification, and expert 
+                review to maintain high standards of data quality and reliability.
+            </p>
+            <p>
+                Sources include annual reports, sustainability reports, modern slavery statements, regulatory 
+                filings, and third-party assessments. We also incorporate stakeholder feedback and expert 
+                opinions to provide context and validation for our findings.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Evaluation Criteria</h3>
+            <p>
+                Our evaluation criteria are based on international standards and best practices in modern 
+                slavery reporting. We assess policy comprehensiveness, implementation effectiveness, 
+                transparency levels, and stakeholder engagement to provide a holistic view of organizational performance.
+            </p>
+            <p>
+                Key evaluation areas include risk assessment processes, due diligence procedures, worker 
+                protection measures, supplier engagement, and remediation efforts. We also consider 
+                industry-specific factors and regional variations in our assessment approach.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Scoring Methodology</h3>
+            <p>
+                Our scoring system uses a weighted approach that reflects the relative importance of 
+                different aspects of modern slavery reporting. Scores are calculated based on policy 
+                quality, implementation effectiveness, and transparency levels.
+            </p>
+            <p>
+                The scoring methodology is regularly reviewed and updated to reflect evolving best 
+                practices and stakeholder expectations. We provide detailed scoring breakdowns and 
+                recommendations for improvement to help organizations enhance their reporting practices.
+            </p>
+        </div>
+        
+        <div class="content-section">
+            <h3>Reporting and Analysis</h3>
+            <p>
+                Our analysis includes trend identification, sector comparisons, and best practice 
+                documentation. We provide actionable insights and recommendations to help organizations 
+                improve their modern slavery reporting and compliance efforts.
+            </p>
+            <p>
+                Reports include detailed findings, visualizations, and case studies to illustrate 
+                successful approaches and common challenges. We also provide benchmarking data and 
+                industry comparisons to help organizations understand their relative performance.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Action Banner -->
+<section class="action-banner">
+    <div class="action-banner-content">
+        <h2>Ready to Take Action?</h2>
+        <p>Join thousands of organizations working together to eliminate modern slavery from supply chains worldwide.</p>
+        <div class="action-buttons">
+            <a href="{% url 'case_study' %}" class="btn-primary">View Case Studies</a>
+            <a href="{% url 'about_us' %}" class="btn-secondary">Contact Us</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
